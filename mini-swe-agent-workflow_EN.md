@@ -98,7 +98,75 @@ mini-swe-agent/
 
 ### 3.2 Component Architecture Diagram
 
-![image](mini-swe-agent-workflow-EN.svg)
+```mermaid
+%%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false}} }%%
+flowchart TD
+    classDef runClass fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b,font-weight:bold
+    classDef configClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f,font-weight:bold
+    classDef agentClass fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold
+    classDef modelClass fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20,font-weight:bold
+    classDef envClass fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c,font-weight:bold
+    classDef protoClass fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#e65100,font-weight:bold
+    classDef outClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c,font-weight:bold
+
+    subgraph SG_Run ["Entrypoint Layer (Run Scripts)"]
+        Mini["mini CLI (run.mini)<br/>Typer-based"]:::runClass
+        HW["hello_world (run.hello_world)<br/>Minimal Script"]:::runClass
+        SWEBench["swebench (run.benchmarks)<br/>Batch Evaluator"]:::runClass
+    end
+
+    subgraph SG_Config ["Configuration and Utility Layer"]
+        DotEnv["global_config_file (.env)<br/>(platformdirs)"]:::configClass
+        CfgMerge["recursive_merge and UNSET<br/>(utils/serialize.py)"]:::configClass
+        SpecLoader["get_config_from_spec<br/>(config/__init__.py)"]:::configClass
+    end
+
+    subgraph SG_Agents ["Implementation Layer: Agents"]
+        IntAgent["InteractiveAgent<br/>human / confirm / yolo"]:::agentClass
+        DefAgent["DefaultAgent<br/>Jinja2 Loop + Limit Controls"]:::agentClass
+    end
+
+    subgraph SG_Models ["Implementation Layer: Models"]
+        DetModel["DeterministicModel<br/>(Offline Testing)"]:::modelClass
+        OpenRouter["OpenRouterModel"]:::modelClass
+        LiteLLM["LitellmModel<br/>API + Retries + Costs"]:::modelClass
+    end
+
+    subgraph SG_Envs ["Implementation Layer: Environments"]
+        LocEnv["LocalEnvironment<br/>subprocess.Popen"]:::envClass
+        SingEnv["SingularityEnvironment<br/>HPC Isolation"]:::envClass
+        DocEnv["DockerEnvironment<br/>Container Isolation"]:::envClass
+        ExtraEnv["Extra: Swerex / Bubblewrap"]:::envClass
+    end
+
+    subgraph SG_Output ["Output Layer"]
+        TrajFile["Trajectory JSON (*.traj.json)<br/>History, Metadata, Cost"]:::outClass
+    end
+
+    subgraph SG_Proto ["Core Protocol Layer (minisweagent/__init__.py)"]
+        PModel["Protocol: Model<br/>query(), format_message()"]:::protoClass
+        PAgent["Protocol: Agent<br/>run(), save()"]:::protoClass
+        PEnv["Protocol: Environment<br/>execute(), get_template_vars()"]:::protoClass
+    end
+
+    DotEnv --> Mini
+    Mini --> SpecLoader
+    Mini --> CfgMerge
+    Mini --> DefAgent
+    HW --> DefAgent
+    SWEBench --> DefAgent
+
+    IntAgent -.->|extends| DefAgent
+    DefAgent -.->|implements| PAgent
+    DefAgent --> PModel
+    DefAgent --> PEnv
+    DefAgent --> TrajFile
+
+    LiteLLM -.->|implements| PModel
+    DetModel -.->|implements| PModel
+    LocEnv -.->|implements| PEnv
+    DocEnv -.->|implements| PEnv
+```
 
 ### 3.3 Circular Dependency Audit
 - Lower layers (`Protocols`, `Exceptions`, `Utils`) do not import upper layers (`Run`, `Agents`, `Models`) `[Verified]`.

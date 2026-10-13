@@ -105,54 +105,55 @@ mini-swe-agent/
 ```mermaid
 flowchart TD
     %% Global Styling
-    classDef runClass fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
-    classDef configClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f;
-    classDef agentClass fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92;
-    classDef modelClass fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20;
-    classDef envClass fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
-    classDef protoClass fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#e65100;
-    classDef outClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+    classDef default font-weight:bold;
+    classDef runClass fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b,font-weight:bold;
+    classDef configClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f,font-weight:bold;
+    classDef agentClass fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92,font-weight:bold;
+    classDef modelClass fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20,font-weight:bold;
+    classDef envClass fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c,font-weight:bold;
+    classDef protoClass fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#e65100,font-weight:bold;
+    classDef outClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c,font-weight:bold;
 
-    subgraph CLI_Entrypoints ["<b>진입점 계층 (Run Scripts)</b>"]
-        Mini["<b>mini CLI (run.mini)<br/>Typer 기반</b>"]:::runClass
-        HW["<b>hello_world (run.hello_world)<br/>최소 스크립트</b>"]:::runClass
-        SWEBench["<b>swebench (run.benchmarks)<br/>배치 평가기</b>"]:::runClass
+    subgraph CLI_Entrypoints ["진입점 계층 (Run Scripts)"]
+        Mini["mini CLI (run.mini)<br/>Typer 기반"]:::runClass
+        HW["hello_world (run.hello_world)<br/>최소 스크립트"]:::runClass
+        SWEBench["swebench (run.benchmarks)<br/>배치 평가기"]:::runClass
     end
 
-    subgraph Config_Layer ["<b>설정 및 유틸리티 계층</b>"]
-        DotEnv["<b>global_config_file (.env)<br/>(platformdirs)</b>"]:::configClass
-        CfgMerge["<b>recursive_merge &amp; UNSET<br/>(utils/serialize.py)</b>"]:::configClass
-        SpecLoader["<b>get_config_from_spec<br/>(config/__init__.py)</b>"]:::configClass
+    subgraph Config_Layer ["설정 및 유틸리티 계층"]
+        DotEnv["global_config_file (.env)<br/>(platformdirs)"]:::configClass
+        CfgMerge["recursive_merge and UNSET<br/>(utils/serialize.py)"]:::configClass
+        SpecLoader["get_config_from_spec<br/>(config/__init__.py)"]:::configClass
     end
 
-    subgraph Implementations ["<b>구현 계층 (Implementations)</b>"]
-        subgraph Agents ["<b>Agents</b>"]
-            IntAgent["<b>InteractiveAgent<br/>human / confirm / yolo</b>"]:::agentClass
-            DefAgent["<b>DefaultAgent<br/>Jinja2 루프 + 한도 제어</b>"]:::agentClass
+    subgraph Implementations ["구현 계층 (Implementations)"]
+        subgraph Agents ["Agents"]
+            IntAgent["InteractiveAgent<br/>human / confirm / yolo"]:::agentClass
+            DefAgent["DefaultAgent<br/>Jinja2 루프 + 한도 제어"]:::agentClass
         end
 
-        subgraph Models ["<b>Models</b>"]
-            DetModel["<b>DeterministicModel<br/>(오프라인 테스트)</b>"]:::modelClass
-            OpenRouter["<b>OpenRouterModel</b>"]:::modelClass
-            LiteLLM["<b>LitellmModel<br/>API + 재시도 + 비용</b>"]:::modelClass
+        subgraph Models ["Models"]
+            DetModel["DeterministicModel<br/>(오프라인 테스트)"]:::modelClass
+            OpenRouter["OpenRouterModel"]:::modelClass
+            LiteLLM["LitellmModel<br/>API + 재시도 + 비용"]:::modelClass
         end
 
-        subgraph Environments ["<b>Environments</b>"]
-            LocEnv["<b>LocalEnvironment<br/>subprocess.Popen</b>"]:::envClass
-            SingEnv["<b>SingularityEnvironment<br/>HPC 격리</b>"]:::envClass
-            DocEnv["<b>DockerEnvironment<br/>컨테이너 격리</b>"]:::envClass
-            ExtraEnv["<b>Extra: Swerex / Bubblewrap</b>"]:::envClass
+        subgraph Environments ["Environments"]
+            LocEnv["LocalEnvironment<br/>subprocess.Popen"]:::envClass
+            SingEnv["SingularityEnvironment<br/>HPC 격리"]:::envClass
+            DocEnv["DockerEnvironment<br/>컨테이너 격리"]:::envClass
+            ExtraEnv["Extra: Swerex / Bubblewrap"]:::envClass
         end
     end
 
-    subgraph Output_Layer ["<b>출력 계층 (Output)</b>"]
-        TrajFile["<b>Trajectory JSON (*.traj.json)<br/>대화 이력, 메타데이터, 비용</b>"]:::outClass
+    subgraph Output_Layer ["출력 계층 (Output)"]
+        TrajFile["Trajectory JSON (*.traj.json)<br/>대화 이력, 메타데이터, 비용"]:::outClass
     end
 
-    subgraph Core_Protocols ["<b>핵심 프로토콜 계층 (minisweagent/__init__.py)</b>"]
-        PModel["<b>Protocol: Model<br/>query(), format_message()</b>"]:::protoClass
-        PAgent["<b>Protocol: Agent<br/>run(), save()</b>"]:::protoClass
-        PEnv["<b>Protocol: Environment<br/>execute(), get_template_vars()</b>"]:::protoClass
+    subgraph Core_Protocols ["핵심 프로토콜 계층 (minisweagent/__init__.py)"]
+        PModel["Protocol: Model<br/>query(), format_message()"]:::protoClass
+        PAgent["Protocol: Agent<br/>run(), save()"]:::protoClass
+        PEnv["Protocol: Environment<br/>execute(), get_template_vars()"]:::protoClass
     end
 
     %% Invocations and Associations
@@ -163,16 +164,16 @@ flowchart TD
     HW --> DefAgent
     SWEBench --> DefAgent
 
-    IntAgent -.->|<b>extends</b>| DefAgent
-    DefAgent -.->|<b>implements</b>| PAgent
+    IntAgent -.->|extends| DefAgent
+    DefAgent -.->|implements| PAgent
     DefAgent --> PModel
     DefAgent --> PEnv
     DefAgent --> TrajFile
 
-    LiteLLM -.->|<b>implements</b>| PModel
-    DetModel -.->|<b>implements</b>| PModel
-    LocEnv -.->|<b>implements</b>| PEnv
-    DocEnv -.->|<b>implements</b>| PEnv
+    LiteLLM -.->|implements| PModel
+    DetModel -.->|implements| PModel
+    LocEnv -.->|implements| PEnv
+    DocEnv -.->|implements| PEnv
 ```
 
 ### 3.3 순환 의존 전수 감사 결과
