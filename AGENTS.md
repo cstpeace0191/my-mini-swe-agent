@@ -16,6 +16,14 @@ minisweagent/run  # Run scripts that serve as an entry point
 - The project embraces polymorphism: Every individual class should be simple, but we offer alternatives
 - Every use case should start with a run script, that picks one agent, environment, and model class to run
 
+# Working Rules
+
+I want to analyze how this repository (mini-swe-agent) works. Follow these rules.
+- Do not modify the source code during the analysis phase (read and run only).
+- Back every claim with evidence in `path:line` format.
+- Distinguish what you verified in the code from what you inferred, using [Verified]/[Inferred].
+- Save results cumulatively as Markdown files under docs/analysis/.
+
 # Style guide
 
 1. Target python 3.10 or higher

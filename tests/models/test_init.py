@@ -138,6 +138,11 @@ class TestGetModel:
         assert model.config.cost_per_call == 2.0
         assert model.config.model_name == "test-model"
 
+    def test_gemini_model_name_normalization(self):
+        config = {"model_class": "deterministic", "outputs": [make_output("hi", [])]}
+        assert get_model("google/gemini-3.8-flash", config).config.model_name == "gemini/gemini-3.8-flash"
+        assert get_model("gemini-3.8-flash", config).config.model_name == "gemini/gemini-3.8-flash"
+
 
 class TestGlobalModelStats:
     def test_prints_cost_limit_when_set(self, capsys):

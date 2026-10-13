@@ -45,6 +45,10 @@ GLOBAL_MODEL_STATS = GlobalModelStats()
 def get_model(input_model_name: str | None = None, config: dict | None = None) -> Model:
     """Get an initialized model object from any kind of user input or settings."""
     resolved_model_name = get_model_name(input_model_name, config)
+    if resolved_model_name.startswith("google/"):
+        resolved_model_name = "gemini/" + resolved_model_name.removeprefix("google/")
+    elif resolved_model_name.startswith("gemini-"):
+        resolved_model_name = f"gemini/{resolved_model_name}"
     if config is None:
         config = {}
     config = copy.deepcopy(config)
