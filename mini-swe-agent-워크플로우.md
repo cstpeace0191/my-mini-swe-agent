@@ -14,6 +14,9 @@
 2. [제2장: 환경 설정, 빌드 및 테스트 검증](#제2장-환경-설정-빌드-및-테스트-검증)
 3. [제3장: 소프트웨어 구조 및 컴포넌트 다이어그램](#제3장-소프트웨어-구조-및-컴포넌트-다이어그램)
 4. [제4장: 엔드투엔드 제어 흐름 및 런타임 추적](#제4장-엔드투엔드-제어-흐름-및-런타임-추적)
+   - [4.1 호출 체인 요약](#41-호출-체인-요약-call-chain-summary)
+   - [4.2 엔드투엔드 시퀀스 다이어그램](#42-엔드투엔드-시퀀스-다이어그램-mermaid-sequence-diagram)
+   - [4.3 런타임 함수 콜 그래프](#43-런타임-함수-콜-그래프-runtime-call-graph--function-inter-dependency)
 5. [제5장: 데이터 모델, 설정 체계 및 확장 지점](#제5장-데이터-모델-설정-체계-및-확장-지점)
 6. [제6장: 모델 + 하네스 심층 해부 및 프레임워크 비교](#제6장-모델--하네스-심층-해부-및-프레임워크-비교)
 7. [제7장: 핵심 동작 특성화 테스트 검증](#제7장-핵심-동작-특성화-테스트-검증)
@@ -96,9 +99,81 @@ mini-swe-agent/
 [ 계층 1: Core Foundation ]  exceptions.py | config.py | serialize.py
 ```
 
+
 ### 3.2 컴포넌트 구조 다이어그램 (Mermaid C4 Component Diagram)
 
-![image](mini-swe-agent-workflow.svg)
+```mermaid
+flowchart TD
+    %% Global Styling
+    classDef runClass fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
+    classDef configClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f;
+    classDef agentClass fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92;
+    classDef modelClass fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20;
+    classDef envClass fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
+    classDef protoClass fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#e65100;
+    classDef outClass fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+
+    subgraph CLI_Entrypoints ["<b>진입점 계층 (Run Scripts)</b>"]
+        Mini["<b>mini CLI (run.mini)<br/>Typer 기반</b>"]:::runClass
+        HW["<b>hello_world (run.hello_world)<br/>최소 스크립트</b>"]:::runClass
+        SWEBench["<b>swebench (run.benchmarks)<br/>배치 평가기</b>"]:::runClass
+    end
+
+    subgraph Config_Layer ["<b>설정 및 유틸리티 계층</b>"]
+        DotEnv["<b>global_config_file (.env)<br/>(platformdirs)</b>"]:::configClass
+        CfgMerge["<b>recursive_merge &amp; UNSET<br/>(utils/serialize.py)</b>"]:::configClass
+        SpecLoader["<b>get_config_from_spec<br/>(config/__init__.py)</b>"]:::configClass
+    end
+
+    subgraph Implementations ["<b>구현 계층 (Implementations)</b>"]
+        subgraph Agents ["<b>Agents</b>"]
+            IntAgent["<b>InteractiveAgent<br/>human / confirm / yolo</b>"]:::agentClass
+            DefAgent["<b>DefaultAgent<br/>Jinja2 루프 + 한도 제어</b>"]:::agentClass
+        end
+
+        subgraph Models ["<b>Models</b>"]
+            DetModel["<b>DeterministicModel<br/>(오프라인 테스트)</b>"]:::modelClass
+            OpenRouter["<b>OpenRouterModel</b>"]:::modelClass
+            LiteLLM["<b>LitellmModel<br/>API + 재시도 + 비용</b>"]:::modelClass
+        end
+
+        subgraph Environments ["<b>Environments</b>"]
+            LocEnv["<b>LocalEnvironment<br/>subprocess.Popen</b>"]:::envClass
+            SingEnv["<b>SingularityEnvironment<br/>HPC 격리</b>"]:::envClass
+            DocEnv["<b>DockerEnvironment<br/>컨테이너 격리</b>"]:::envClass
+            ExtraEnv["<b>Extra: Swerex / Bubblewrap</b>"]:::envClass
+        end
+    end
+
+    subgraph Output_Layer ["<b>출력 계층 (Output)</b>"]
+        TrajFile["<b>Trajectory JSON (*.traj.json)<br/>대화 이력, 메타데이터, 비용</b>"]:::outClass
+    end
+
+    subgraph Core_Protocols ["<b>핵심 프로토콜 계층 (minisweagent/__init__.py)</b>"]
+        PModel["<b>Protocol: Model<br/>query(), format_message()</b>"]:::protoClass
+        PAgent["<b>Protocol: Agent<br/>run(), save()</b>"]:::protoClass
+        PEnv["<b>Protocol: Environment<br/>execute(), get_template_vars()</b>"]:::protoClass
+    end
+
+    %% Invocations and Associations
+    DotEnv --> Mini
+    Mini --> SpecLoader
+    Mini --> CfgMerge
+    Mini --> DefAgent
+    HW --> DefAgent
+    SWEBench --> DefAgent
+
+    IntAgent -.->|<b>extends</b>| DefAgent
+    DefAgent -.->|<b>implements</b>| PAgent
+    DefAgent --> PModel
+    DefAgent --> PEnv
+    DefAgent --> TrajFile
+
+    LiteLLM -.->|<b>implements</b>| PModel
+    DetModel -.->|<b>implements</b>| PModel
+    LocEnv -.->|<b>implements</b>| PEnv
+    DocEnv -.->|<b>implements</b>| PEnv
+```
 
 ### 3.3 순환 의존 전수 감사 결과
 - 하위 계층(Protocols, Exceptions, Utils)은 상위 계층(Run, Agents, Models)을 전혀 임포트하지 않음.
@@ -181,6 +256,210 @@ sequenceDiagram
         Run-->>User: 최종 결과 출력
     end
 ```
+
+### 4.3 런타임 함수 콜 그래프 (Runtime Call Graph & Function Inter-Dependency)
+
+터미널에서 `mini` 명령이 실행된 시점부터 설정 병합, 컴포넌트 팩토리 조립, 에이전트 루프 반복, 모델 API 호출 및 파싱, 로컬 격리 셸 구동, 예외 시그널 전파, 최종 Trajectory 직렬화까지의 **전체 함수/메서드 간 호출 트리 및 상호 의존성(Call Graph)**을 종합 시각화합니다.
+
+#### 4.3.1 전체 콜 그래프 다이어그램 (Mermaid Call Graph Flowchart)
+
+
+
+```mermaid
+flowchart TD
+    %% Styling Classes
+    classDef cliNode fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;
+    classDef configNode fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#880e4f;
+    classDef factoryNode fill:#ede7f6,stroke:#512da8,stroke-width:2px,color:#311b92;
+    classDef agentNode fill:#fff8e1,stroke:#f57f17,stroke-width:2px,color:#bf360c;
+    classDef modelNode fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#1b5e20;
+    classDef envNode fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#bf360c;
+    classDef excNode fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#b71c1c;
+    classDef persistNode fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c;
+
+    subgraph SG_Entry ["<b>1. CLI 진입 및 설정 계층 (Run & Config)</b>"]
+        Entry(["<b>CLI: mini</b>"])
+        Main["<b>main()</b><br/><b>src/minisweagent/run/mini.py#L55</b>"]:::cliNode
+        ConfigFirst["<b>configure_if_first_time()</b><br/><b>src/minisweagent/run/utilities/config.py#L62</b>"]:::configNode
+        GetConfigSpec["<b>get_config_from_spec()</b><br/><b>src/minisweagent/config/__init__.py#L56</b>"]:::configNode
+        RecurMerge["<b>recursive_merge()</b><br/><b>src/minisweagent/utils/serialize.py#L27</b>"]:::configNode
+        PromptTask["<b>_multiline_prompt()</b><br/><b>src/minisweagent/agents/utils/prompt_user.py#L18</b>"]:::cliNode
+    end
+
+    subgraph SG_Factory ["<b>2. 컴포넌트 팩토리 계층 (Component Factories)</b>"]
+        GetModel["<b>get_model()</b><br/><b>src/minisweagent/models/__init__.py#L45</b>"]:::factoryNode
+        GetModelClass["<b>get_model_class()</b><br/><b>src/minisweagent/models/__init__.py#L96</b>"]:::factoryNode
+        GetEnv["<b>get_environment()</b><br/><b>src/minisweagent/environments/__init__.py#L30</b>"]:::factoryNode
+        GetEnvClass["<b>get_environment_class()</b><br/><b>src/minisweagent/environments/__init__.py#L19</b>"]:::factoryNode
+        GetAgent["<b>get_agent()</b><br/><b>src/minisweagent/agents/__init__.py#L25</b>"]:::factoryNode
+        GetAgentClass["<b>get_agent_class()</b><br/><b>src/minisweagent/agents/__init__.py#L14</b>"]:::factoryNode
+    end
+
+    subgraph SG_Init ["<b>3. 에이전트 초기화 (Agent Initialization)</b>"]
+        AgentRun["<b>DefaultAgent.run()</b><br/><b>src/minisweagent/agents/default.py#L88</b>"]:::agentNode
+        RenderTmpl["<b>_render_template()</b><br/><b>jinja2.Template.render</b>"]:::agentNode
+        FmtMsg["<b>model.format_message()</b><br/><b>src/minisweagent/models/litellm_model.py#L137</b>"]:::modelNode
+        ExpandMultimodal["<b>expand_multimodal_content()</b><br/><b>src/minisweagent/models/utils/openai_multimodal.py#L34</b>"]:::modelNode
+        AddMsg["<b>add_messages()</b><br/><b>src/minisweagent/agents/interactive.py#L43</b>"]:::agentNode
+    end
+
+    subgraph SG_Loop ["<b>4. 에이전트 실행 루프 (Control Loop: while True)</b>"]
+        WhileLoop{"<b>while True 루프</b><br/><b>src/minisweagent/agents/default.py#L96</b>"}:::agentNode
+        Step["<b>agent.step()</b><br/><b>src/minisweagent/agents/interactive.py#L109</b>"]:::agentNode
+        SuperStep["<b>super().step()</b><br/><b>src/minisweagent/agents/default.py#L126</b>"]:::agentNode
+        Query["<b>agent.query()</b><br/><b>src/minisweagent/agents/interactive.py#L58</b>"]:::agentNode
+        SuperQuery["<b>super().query()</b><br/><b>src/minisweagent/agents/default.py#L130</b>"]:::agentNode
+        CheckLimits{"<b>한도 검사</b><br/><b>step / cost / wall_time</b>"}:::agentNode
+        ExecActions["<b>agent.execute_actions()</b><br/><b>src/minisweagent/agents/interactive.py#L124</b>"]:::agentNode
+        AskConfirm["<b>_ask_confirmation_or_interrupt()</b><br/><b>src/minisweagent/agents/interactive.py#L165</b>"]:::agentNode
+    end
+
+    subgraph SG_Model ["<b>5. 모델 질의 및 도구 파싱 (Model & Tool Call)</b>"]
+        ModelQuery["<b>LitellmModel.query()</b><br/><b>src/minisweagent/models/litellm_model.py#L81</b>"]:::modelNode
+        PrepMsg["<b>_prepare_messages_for_api()</b><br/><b>src/minisweagent/models/litellm_model.py#L76</b>"]:::modelNode
+        RetryComp["<b>litellm.completion()</b><br/><b>(tenacity retry wrapped)</b>"]:::modelNode
+        CalcCost["<b>_calculate_cost()</b><br/><b>src/minisweagent/models/litellm_model.py#L108</b>"]:::modelNode
+        AddGlobalStats["<b>GLOBAL_MODEL_STATS.add()</b><br/><b>src/minisweagent/models/__init__.py#L25</b>"]:::modelNode
+        ParseActions["<b>_parse_actions()</b><br/><b>src/minisweagent/models/litellm_model.py#L128</b>"]:::modelNode
+        ParseToolcall["<b>parse_toolcall_actions()</b><br/><b>src/minisweagent/models/utils/actions_toolcall.py#L30</b>"]:::modelNode
+        FmtObs["<b>format_observation_messages()</b><br/><b>src/minisweagent/models/litellm_model.py#L140</b>"]:::modelNode
+        FmtObsMsg["<b>format_toolcall_observation_messages()</b><br/><b>src/minisweagent/models/utils/actions_toolcall.py#L79</b>"]:::modelNode
+    end
+
+    subgraph SG_Env ["<b>6. 격리 환경 실행 (Environment Execution)</b>"]
+        EnvExec["<b>LocalEnvironment.execute()</b><br/><b>src/minisweagent/environments/local.py#L24</b>"]:::envNode
+        RunSubproc["<b>_run()</b><br/><b>src/minisweagent/environments/local.py#L72</b>"]:::envNode
+        CheckFinished["<b>_check_finished()</b><br/><b>src/minisweagent/environments/local.py#L45</b>"]:::envNode
+    end
+
+    subgraph SG_Exceptions ["<b>7. 제어 흐름 예외 트리거 (Exception-Driven Flow)</b>"]
+        ExcSubmitted["<b>Submitted</b><br/><b>작업 정상 완료</b>"]:::excNode
+        ExcLimits["<b>LimitsExceeded</b><br/><b>스텝/비용 한도 초과</b>"]:::excNode
+        ExcFormat["<b>FormatError</b><br/><b>도구 호출 형식 오류</b>"]:::excNode
+        ExcInterrupt["<b>UserInterruption</b><br/><b>사용자 명령 주입/중단</b>"]:::excNode
+    end
+
+    subgraph SG_Persist ["<b>8. 직렬화 및 증분 저장 (Persistence)</b>"]
+        FinallySave["<b>finally: agent.save()</b><br/><b>src/minisweagent/agents/default.py#L121, L182</b>"]:::persistNode
+        Serialize["<b>agent.serialize()</b><br/><b>src/minisweagent/agents/default.py#L159</b>"]:::persistNode
+        RecurMergeTraj["<b>recursive_merge()</b><br/><b>Model/Env 메타데이터 병합</b>"]:::persistNode
+        WriteFile["<b>Path.write_text()</b><br/><b>*.traj.json 동기화</b>"]:::persistNode
+    end
+
+    %% Edge Invocations
+    Entry --> Main
+    Main --> ConfigFirst
+    Main --> GetConfigSpec
+    Main --> RecurMerge
+    Main -.->|<b>task 미지정 시</b>| PromptTask
+    Main --> GetModel & GetEnv & GetAgent
+    GetModel --> GetModelClass
+    GetEnv --> GetEnvClass
+    GetAgent --> GetAgentClass
+
+    Main --> AgentRun
+    AgentRun --> RenderTmpl
+    AgentRun --> FmtMsg --> ExpandMultimodal
+    AgentRun --> AddMsg
+    AgentRun --> WhileLoop
+
+    WhileLoop --> Step
+    Step --> SuperStep
+    SuperStep --> Query
+    Query --> SuperQuery
+    SuperQuery --> CheckLimits
+
+    CheckLimits -- <b>한도 초과 시</b> --> ExcLimits
+    CheckLimits -- <b>통과 시</b> --> ModelQuery
+
+    ModelQuery --> PrepMsg --> RetryComp
+    RetryComp --> CalcCost --> AddGlobalStats
+    RetryComp --> ParseActions --> ParseToolcall
+    ParseToolcall -- <b>형식 위반 시</b> --> ExcFormat
+    ParseToolcall -- <b>성공 시 (actions 반환)</b> --> SuperStep
+
+    SuperStep --> ExecActions
+    ExecActions --> AskConfirm
+    AskConfirm -.->|<b>사용자 거절/명령 입력</b>| ExcInterrupt
+    AskConfirm -- <b>승인 / yolo 모드</b> --> EnvExec
+
+    EnvExec --> RunSubproc --> CheckFinished
+    CheckFinished -- <b>완료 시그널 감지</b> --> ExcSubmitted
+    CheckFinished -- <b>일반 반환</b> --> FmtObs --> FmtObsMsg
+    FmtObsMsg --> AddMsg
+
+    %% Exception Handling to Save
+    ExcSubmitted --> FinallySave
+    ExcLimits --> FinallySave
+    ExcFormat --> FinallySave
+    ExcInterrupt --> FinallySave
+    SuperStep --> FinallySave
+
+    FinallySave --> Serialize --> RecurMergeTraj --> WriteFile
+    WhileLoop -->|<b>role == 'exit'</b>| ExitBreak(["<b>루프 종료 & agent 반환</b>"]):::cliNode
+
+
+
+
+```
+
+---
+
+#### 4.3.2 5대 핵심 호출 체인 상세 해부
+
+1. **부트스트랩 및 팩토리 조합 체인 (Bootstrap & Factory Assembly)** `[확인]`
+   - [main()](".../mini-swe-agent/src/minisweagent/run/mini.py#L55") 실행 시 [configure_if_first_time()](".../mini-swe-agent/src/minisweagent/run/utilities/config.py#L62")를 통해 전역 설정 존재 여부를 점검합니다.
+   - [get_config_from_spec()](".../mini-swe-agent/src/minisweagent/config/__init__.py#L56")과 [recursive_merge()](".../mini-swe-agent/src/minisweagent/utils/serialize.py#L27")가 다중 YAML 및 CLI 인자를 병합합니다.
+   - [`get_model()`](".../mini-swe-agent/src/minisweagent/models/__init__.py#L45"), [`get_environment()`](".../mini-swe-agent/src/minisweagent/environments/__init__.py#L30"), [`get_agent()`](".../mini-swe-agent/src/minisweagent/agents/__init__.py#L25") 팩토리가 문자열 스펙을 동적 임포트하여 구체 클래스 인스턴스를 조립합니다.
+
+2. **프롬프트 렌더링 및 에이전트 초기화 체인 (Prompt Rendering & Startup)** `[확인]`
+   - [`DefaultAgent.run()`](".../mini-swe-agent/src/minisweagent/agents/default.py#L88") 진입 즉시 Jinja2 `_render_template()`을 구동하여 `system_template` 및 `instance_template`을 완성합니다.
+   - [`model.format_message()`](".../mini-swe-agent/src/minisweagent/models/litellm_model.py#L137")가 [`expand_multimodal_content()`](".../mini-swe-agent/src/minisweagent/models/utils/openai_multimodal.py#L34")를 호출하여 텍스트 및 이미지를 정규화하고 초기 `messages` 큐를 구성합니다.
+
+3. **모델 추론, 비용 산정 및 도구 파싱 체인 (Model Query & Cost Accounting)** `[확인]`
+   - [`agent.query()`](".../mini-swe-agent/src/minisweagent/agents/default.py#L130")에서 인스턴스 비용(`cost_limit`), 스텝(`step_limit`), 실행 시간(`wall_time_limit_seconds`)을 선제 검사합니다.
+   - [`LitellmModel.query()`](".../mini-swe-agent/src/minisweagent/models/litellm_model.py#L81")는 `_prepare_messages_for_api()`로 불필요한 메타데이터를 제거하고 Tenacity 지수 백오프 하에 `litellm.completion()`을 호출합니다.
+   - 응답 직후 `_calculate_cost()`로 비용을 계산하고 [`GLOBAL_MODEL_STATS.add()`](".../mini-swe-agent/src/minisweagent/models/__init__.py#L25")에 반영하여 프로세스 전역 한도를 동기화합니다.
+   - [`parse_toolcall_actions()`](".../mini-swe-agent/src/minisweagent/models/utils/actions_toolcall.py#L30")가 Universal Bash 도구 호출을 파싱하며, 형식 위반 시 즉시 [`FormatError`](".../mini-swe-agent/src/minisweagent/exceptions.py#L15")를 던집니다.
+
+4. **격리 환경 명령 실행 및 완료 감지 체인 (Environment Execution & Containment)** `[확인]`
+   - [`InteractiveAgent.execute_actions()`](".../mini-swe-agent/src/minisweagent/agents/interactive.py#L124")는 사용자 컨펌 모드에 따라 승인 또는 신규 명령 주입([`UserInterruption`](".../mini-swe-agent/src/minisweagent/exceptions.py#L23"))을 처리합니다.
+   - 승인된 명령은 [`LocalEnvironment.execute()`](".../mini-swe-agent/src/minisweagent/environments/local.py#L24")의 [`_run()`](".../mini-swe-agent/src/minisweagent/environments/local.py#L72")으로 전달되어 안전한 하위 프로세스 세션에서 비동기 격리 실행됩니다 (타임아웃 시 `killpg`로 고아 프로세스 방지).
+   - 반환 직전 [`_check_finished()`](".../mini-swe-agent/src/minisweagent/environments/local.py#L45")가 첫 줄의 `COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT` 시그널을 확인하고, 일치 시 [`Submitted`](".../mini-swe-agent/src/minisweagent/exceptions.py#L7") 예외를 발생시킵니다.
+
+5. **예외 기반 제어 흐름 및 무손실 저장 체인 (Exception Routing & State Persistence)** `[확인]`
+   - 완료([`Submitted`](".../mini-swe-agent/src/minisweagent/exceptions.py#L7")), 한도 초과([`LimitsExceeded`](".../mini-swe-agent/src/minisweagent/exceptions.py#L11")), 서식 오류([`FormatError`](".../mini-swe-agent/src/minisweagent/exceptions.py#L15")) 등 모든 흐름 제어 신호는 예외 트리를 타고 상위로 전파됩니다.
+   - 루프의 `finally` 절에서 항상 [`agent.save()`](".../mini-swe-agent/src/minisweagent/agents/default.py#L182")가 호출되어 [`agent.serialize()`](".../mini-swe-agent/src/minisweagent/agents/default.py#L159")와 `recursive_merge()`를 통해 디스크(`*.traj.json`)에 최신 상태를 강제 동기화합니다.
+   - 마지막 메시지의 `role == "exit"`가 확인되면 `while True` 루프가 안전하게 탈출합니다.
+
+---
+
+#### 4.3.3 콜 그래프 노드 매핑 및 소스코드 위치 참조표
+
+| 계층 | 노드 / 함수명 | 소스코드 파일 및 위치 | 주요 역할 및 반환 규격 | 검증 |
+| :--- | :--- | :--- | :--- | :---: |
+| **Run** | `main()` | [src/minisweagent/run/mini.py#L55](".../mini-swe-agent/src/minisweagent/run/mini.py#L55") | Typer CLI 진입점, 옵션 파싱, 컴포넌트 결합 및 실행 | `[확인]` |
+| **Config** | `configure_if_first_time()` | [src/minisweagent/run/utilities/config.py#L62](".../mini-swe-agent/src/minisweagent/run/utilities/config.py#L62") | 초회 구동 시 대화형 모델/API 키 설정 마법사 실행 | `[확인]` |
+| **Config** | `get_config_from_spec()` | [src/minisweagent/config/__init__.py#L56](".../mini-swe-agent/src/minisweagent/config/__init__.py#L56") | 파일 경로 또는 `key=value` 문자열을 dict로 파싱 | `[확인]` |
+| **Config** | `recursive_merge()` | [src/minisweagent/utils/serialize.py#L27](".../mini-swe-agent/src/minisweagent/utils/serialize.py#L27") | `UNSET` 센티넬을 반영한 무손실 다중 딕셔너리 병합 | `[확인]` |
+| **Factory** | `get_model()` | [src/minisweagent/models/__init__.py#L45](".../mini-swe-agent/src/minisweagent/models/__init__.py#L45") | 모델 클래스 탐색 및 캐시 컨트롤 기본값 주입 후 인스턴스화 | `[확인]` |
+| **Factory** | `get_environment()` | [src/minisweagent/environments/__init__.py#L30](".../mini-swe-agent/src/minisweagent/environments/__init__.py#L30") | 격리 환경(`local`, `docker`, `singularity` 등) 동적 인스턴스화 | `[확인]` |
+| **Factory** | `get_agent()` | [src/minisweagent/agents/__init__.py#L25](".../mini-swe-agent/src/minisweagent/agents/__init__.py#L25") | 모델과 환경 객체를 주입받아 에이전트 인스턴스화 | `[확인]` |
+| **Agent** | `DefaultAgent.run()` | [src/minisweagent/agents/default.py#L88](".../mini-swe-agent/src/minisweagent/agents/default.py#L88") | 템플릿 렌더링, `while True` 메인 제어 루프 및 예외 처리 | `[확인]` |
+| **Agent** | `InteractiveAgent.step()` | [src/minisweagent/agents/interactive.py#L109](".../mini-swe-agent/src/minisweagent/agents/interactive.py#L109") | `KeyboardInterrupt` 감지 시 인터랙티브 중단 훅 처리 | `[확인]` |
+| **Agent** | `DefaultAgent.step()` | [src/minisweagent/agents/default.py#L126](".../mini-swe-agent/src/minisweagent/agents/default.py#L126") | `query()` 호출 후 `execute_actions()`로 결과 위임 | `[확인]` |
+| **Agent** | `DefaultAgent.query()` | [src/minisweagent/agents/default.py#L130](".../mini-swe-agent/src/minisweagent/agents/default.py#L130") | 스텝/비용/시간 한도 검사 후 `model.query()` 호출 | `[확인]` |
+| **Agent** | `InteractiveAgent.execute_actions()` | [src/minisweagent/agents/interactive.py#L124](".../mini-swe-agent/src/minisweagent/agents/interactive.py#L124") | 사용자 확인(`confirm`), 신규 작업 추가 및 관측값 포맷팅 | `[확인]` |
+| **Model** | `LitellmModel.query()` | [src/minisweagent/models/litellm_model.py#L81](".../mini-swe-agent/src/minisweagent/models/litellm_model.py#L81") | LiteLLM API 호출, 재시도 제어, 비용 계산 및 액션 파싱 | `[확인]` |
+| **Model** | `_calculate_cost()` | [src/minisweagent/models/litellm_model.py#L108](".../mini-swe-agent/src/minisweagent/models/litellm_model.py#L108") | `litellm.completion_cost()` 기반 실시간 API 토큰 비용 산출 | `[확인]` |
+| **Model** | `GLOBAL_MODEL_STATS.add()` | [src/minisweagent/models/__init__.py#L25](".../mini-swe-agent/src/minisweagent/models/__init__.py#L25") | 스레드 세이프 전역 호출 수 및 비용 누적 및 상한 감시 | `[확인]` |
+| **Model** | `parse_toolcall_actions()` | [src/minisweagent/models/utils/actions_toolcall.py#L30](".../mini-swe-agent/src/minisweagent/models/utils/actions_toolcall.py#L30") | LLM tool_calls 응답에서 `bash` 명령 추출 및 유효성 검증 | `[확인]` |
+| **Model** | `format_toolcall_observation_messages()` | [src/minisweagent/models/utils/actions_toolcall.py#L79](".../mini-swe-agent/src/minisweagent/models/utils/actions_toolcall.py#L79") | 셸 실행 출력(`output`, `returncode`)을 tool 관측 메시지로 포맷 | `[확인]` |
+| **Env** | `LocalEnvironment.execute()` | [src/minisweagent/environments/local.py#L24](".../mini-swe-agent/src/minisweagent/environments/local.py#L24") | 로컬 셸 명령 실행 위임 및 완료 시그널 검사 | `[확인]` |
+| **Env** | `_run()` | [src/minisweagent/environments/local.py#L72](".../mini-swe-agent/src/minisweagent/environments/local.py#L72") | `subprocess.Popen` 프로세스 그룹 생성 및 타임아웃 강제 회수 | `[확인]` |
+| **Env** | `_check_finished()` | [src/minisweagent/environments/local.py#L45](".../mini-swe-agent/src/minisweagent/environments/local.py#L45") | `COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT` 검출 시 `Submitted` 예외 발생 | `[확인]` |
+| **Persist** | `DefaultAgent.save()` | [src/minisweagent/agents/default.py#L182](".../mini-swe-agent/src/minisweagent/agents/default.py#L182") | Trajectory 직렬화 데이터를 지정된 JSON 파일에 영구 기록 | `[확인]` |
+| **Persist** | `DefaultAgent.serialize()` | [src/minisweagent/agents/default.py#L159](".../mini-swe-agent/src/minisweagent/agents/default.py#L159") | 에이전트, 모델, 환경 상태를 `mini-swe-agent-1.1` 규격으로 직렬화 | `[확인]` |
 
 ---
 
