@@ -1,0 +1,3143 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mini-swe-agent.com/latest/analysis/05_end_to_end_trace/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/mini_square.svg">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>5단계: 대표 유스케이스 엔드투엔드(End-to-End) 흐름 추적 보고서 - mini-SWE-agent documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M22%2012a10%2010%200%200%201-10%2010A10%2010%200%200%201%202%2012%2010%2010%200%200%201%2012%202a10%2010%200%200%201%2010%2010m-12%206%206-6-6-6-1.4%201.4%204.6%204.6-4.6%204.6z%22/%3E%3C/svg%3E');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../assets/custom.css">
+    
+      <link rel="stylesheet" href="../../assets/gif-controls.css">
+    
+      <link rel="stylesheet" href="../../assets/mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../assets/image_theme.css">
+    
+      <link rel="stylesheet" href="../../assets/bubbles.css">
+    
+      <link rel="stylesheet" href="../../assets/navigation_cards.css">
+    
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-SG2NC1GDRD"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-SG2NC1GDRD",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-SG2NC1GDRD",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#5-end-to-end" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+              <button class="md-banner__button md-icon" aria-label="Don't show this again">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+              </button>
+            
+            
+<a href="../../usage/programbench/">
+  🎉 Run mini-swe-agent on our new &amp; extremely challenging benchmark, ProgramBench
+</a>
+
+          </div>
+          
+            <script>var el=document.querySelector("[data-md-component=announce]");if(el){var content=el.querySelector(".md-typeset");__md_hash(content.innerHTML)===__md_get("__announce")&&(el.hidden=!0)}</script>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="mini-SWE-agent documentation" class="md-header__button md-logo" aria-label="mini-SWE-agent documentation" data-md-component="logo">
+      
+  <img src="../../assets/mini_square.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            mini-SWE-agent documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              5단계: 대표 유스케이스 엔드투엔드(End-to-End) 흐름 추적 보고서
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-orange" aria-label="Switch to dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-orange" aria-label="Switch to light mode" type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden="">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required="">
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix="">
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SWE-agent/mini-SWE-agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    SWE-agent/mini-SWE-agent
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://www.swebench.com/blog.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Blog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://swebench.com" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Leaderboard
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="mini-SWE-agent documentation" class="md-nav__button md-logo" aria-label="mini-SWE-agent documentation" data-md-component="logo">
+      
+  <img src="../../assets/mini_square.svg" alt="logo">
+
+    </a>
+    mini-SWE-agent documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SWE-agent/mini-SWE-agent" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    SWE-agent/mini-SWE-agent
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3">
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command line usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Command line usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/mini/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code>mini</code>
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/swebench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWE-bench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/programbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProgramBench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/inspector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inspector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/output_files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Output files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_4">
+        
+          
+          <label class="md-nav__link" for="__nav_1_4" id="__nav_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language models
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/local_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Local models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../models/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5">
+        
+          
+          <label class="md-nav__link" for="__nav_1_5" id="__nav_1_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/global_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Global configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/yaml_configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Yaml config files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_6">
+        
+          
+          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings &amp; more
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Python bindings &amp; more
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/python_bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/control_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understanding the agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/cookbook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Subclassing and more
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced/v2_migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v2 migration guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2">
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Agents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/agents/default/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DefaultAgent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/agents/interactive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InteractiveAgent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3">
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Models
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Models
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/litellm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LitellmModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/litellm_response_toolcall/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LitellmResponseModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/openrouter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenRouterModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/requesty/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RequestyModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/portkey/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PortkeyModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/portkey_response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PortkeyResponse
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/test_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DeterministicModel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/extra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extra Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/models/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4">
+        
+          
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Environments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/local/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LocalEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DockerEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/singularity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SingularityEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/swerex_docker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SwerexDockerEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/bubblewrap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BubblewrapEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/contree/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ContreeEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/environments/swerex_modal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SwerexModalEnvironment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5">
+        
+          
+          <label class="md-nav__link" for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run Scripts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Run Scripts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/hello_world/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hello World
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/mini/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mini
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/mini_extra/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    mini-extra
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/inspector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inspector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/swebench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWE-bench (batch)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/swebench_single/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWE-bench (single)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/run/programbench/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProgramBench
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://www.swebench.com/blog.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://swebench.com" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Leaderboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 개요 및 대표 유스케이스 선정
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-call-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 호출 체인 순서 (Call Chain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-state-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 단계별 데이터 및 상태 변화 (State Lifecycle)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 단계별 데이터 및 상태 변화 (State Lifecycle)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 상태 전이 표
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-trajectory-serialize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Trajectory 데이터 구조 (serialize())
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 예외 발생 시 에러 처리 및 복구 경로
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 예외 발생 시 에러 처리 및 복구 경로">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 세부 예외 처리 메커니즘
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mermaid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 엔드투엔드 시퀀스 다이어그램 (Mermaid)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dynamic-trace-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 실제 실행 검증 (Dynamic Trace Verification)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 실제 실행 검증 (Dynamic Trace Verification)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 검증 실행 내용
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-trajectory-test_tracetrajjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 생성된 Trajectory 검증 결과 (test_trace.traj.json)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 결론
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+
+                  
+
+
+  
+    <a href="https://github.com/SWE-agent/mini-SWE-agent/edit/main/docs/analysis/05_end_to_end_trace.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="5-end-to-end">5단계: 대표 유스케이스 엔드투엔드(End-to-End) 흐름 추적 보고서</h1>
+<p>본 문서는 <code>mini-swe-agent</code>의 대표 유스케이스인 <strong>실행 스크립트 실행(<code>python -m minisweagent.run.mini</code> 및 <code>python -m minisweagent.run.hello_world</code>)</strong> 시 진입점부터 최종 Trajectory 저장까지의 전체 제어 흐름과 데이터 상태 변화, 예외 복구 경로를 상세히 분석하고 실제 실행 로그를 통해 검증한 결과입니다.</p>
+<ul>
+<li><strong>원칙 준수</strong>: 소스 코드 수정 없이 순수 읽기 및 실행 기반 분석 수행.</li>
+<li><strong>근거 표기</strong>: 모든 분석 내용은 <code>경로:라인</code> 형식의 근거와 <code>[확인]</code>(Verified) / <code>[추정]</code>(Inferred) 태그를 명시.</li>
+</ul>
+<hr>
+<h2 id="1">1. 개요 및 대표 유스케이스 선정</h2>
+<ul>
+<li><strong>대표 유스케이스</strong>: 사용자가 로컬 환경에서 작업을 전달하여 에이전트를 자율 실행하는 시나리오</li>
+<li><strong>CLI 표준 실행 (<code>mini</code>)</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/run/mini.py#L55">src/minisweagent/run/mini.py:55</a></li>
+<li><strong>최소 코드 실행 (<code>hello_world</code>)</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/run/hello_world.py#L21">src/minisweagent/run/hello_world.py:21</a></li>
+<li>두 실행 스크립트 모두 공통적으로 <strong>설정 로딩 → 팩토리 인스턴스화 → Agent.run() 루프(LLM 질의 → 셸 명령 실행 → 관측 반환) → Trajectory 저장</strong>의 동일한 코어 파이프라인을 공유합니다.</li>
+</ul>
+<hr>
+<h2 id="2-call-chain">2. 호출 체인 순서 (Call Chain)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">단계</th>
+<th style="text-align: left;">함수 / 메서드</th>
+<th style="text-align: left;">파일 및 라인</th>
+<th style="text-align: left;">역할 및 동작 설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1. CLI 파싱</strong></td>
+<td style="text-align: left;"><code>main(...)</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/run/mini.py#L55">src/minisweagent/run/mini.py:55</a></td>
+<td style="text-align: left;">Typer 기반 CLI 옵션(<code>--model</code>, <code>--task</code>, <code>-y</code>, <code>-c</code>, <code>-o</code> 등) 파싱 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2. 최초 설정 확인</strong></td>
+<td style="text-align: left;"><code>configure_if_first_time()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/run/utilities/config.py#L38">src/minisweagent/run/utilities/config.py:38</a></td>
+<td style="text-align: left;"><code>~/.config/mini-swe-agent/.setup_completed</code> 존재 여부 확인 및 초기 모델 설정 유도 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3. 설정 파싱 및 병합</strong></td>
+<td style="text-align: left;"><code>get_config_from_spec()</code><br><code>recursive_merge()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/config.py#L102">src/minisweagent/config.py:102</a><br><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/utils/serialize.py#L27">src/minisweagent/utils/serialize.py:27</a></td>
+<td style="text-align: left;"><code>-c</code> 인자(YAML 파일/키=값)를 파싱하고 CLI 오버라이드 딕셔너리와 병합 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4. 태스크 프롬프트</strong></td>
+<td style="text-align: left;"><code>_multiline_prompt()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/run/mini.py#L96">src/minisweagent/run/mini.py:96</a></td>
+<td style="text-align: left;">태스크 인자가 미지정(<code>UNSET</code>)인 경우 사용자로부터 멀티라인 작업 입력 수신 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5. Model 인스턴스화</strong></td>
+<td style="text-align: left;"><code>get_model()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/models/__init__.py#L45">src/minisweagent/models/<strong>init</strong>.py:45</a></td>
+<td style="text-align: left;"><code>model_class</code>(기본 <code>litellm</code>)를 동적 임포트하여 <code>LitellmModel</code> 객체 생성 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>6. Environment 생성</strong></td>
+<td style="text-align: left;"><code>get_environment()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/environments/__init__.py#L30">src/minisweagent/environments/<strong>init</strong>.py:30</a></td>
+<td style="text-align: left;"><code>environment_class</code>(기본 <code>local</code>)로부터 <code>LocalEnvironment</code> 객체 생성 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>7. Agent 인스턴스화</strong></td>
+<td style="text-align: left;"><code>get_agent()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/__init__.py#L25">src/minisweagent/agents/<strong>init</strong>.py:25</a></td>
+<td style="text-align: left;"><code>agent_class</code>(기본 <code>interactive</code> 또는 <code>default</code>)로부터 <code>InteractiveAgent</code>/<code>DefaultAgent</code> 생성 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>8. 에이전트 루프 진입</strong></td>
+<td style="text-align: left;"><code>agent.run(task)</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L88">src/minisweagent/agents/default.py:88</a></td>
+<td style="text-align: left;">프롬프트 템플릿 렌더링 및 <code>while True</code> 제어 루프 진입 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>9. 초기 메시지 렌더링</strong></td>
+<td style="text-align: left;"><code>_render_template()</code><br><code>get_template_vars()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L66">src/minisweagent/agents/default.py:66</a><br><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L52">src/minisweagent/agents/default.py:52</a></td>
+<td style="text-align: left;">Jinja2를 통해 <code>system_template</code> 및 <code>instance_template</code>에 OS, 환경, task 정보 주입 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>10. 스텝 실행</strong></td>
+<td style="text-align: left;"><code>step()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L126">src/minisweagent/agents/default.py:126</a></td>
+<td style="text-align: left;"><code>self.query()</code> 호출 후 <code>self.execute_actions()</code>로 반환값 전달 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>11. 자원 제한 검사 &amp; 질의</strong></td>
+<td style="text-align: left;"><code>query()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L130">src/minisweagent/agents/default.py:130</a></td>
+<td style="text-align: left;"><code>step_limit</code>, <code>cost_limit</code>, <code>wall_time_limit</code> 검증 후 <code>model.query(messages)</code> 호출 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>12. LLM 호출 및 파싱</strong></td>
+<td style="text-align: left;"><code>LitellmModel.query()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/models/litellm_model.py#L81">src/minisweagent/models/litellm_model.py:81</a></td>
+<td style="text-align: left;">tenacity 재시도 루프 내 completion 호출, 비용 계산 및 tool_call/bash 액션 파싱 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>13. 액션 셸 실행</strong></td>
+<td style="text-align: left;"><code>execute_actions()</code><br><code>LocalEnvironment.execute()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L154">src/minisweagent/agents/default.py:154</a><br><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/environments/local.py#L24">src/minisweagent/environments/local.py:24</a></td>
+<td style="text-align: left;"><code>subprocess.Popen</code> 기반 서브셸 실행 및 stdout/returncode 수집 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>14. 완료 시그널 검사</strong></td>
+<td style="text-align: left;"><code>_check_finished()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/environments/local.py#L45">src/minisweagent/environments/local.py:45</a></td>
+<td style="text-align: left;">출력 첫 줄이 <code>COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT</code>이고 returncode==0이면 <code>Submitted</code> 발생 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>15. 관측값 메시지 포맷</strong></td>
+<td style="text-align: left;"><code>format_observation_messages()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/models/litellm_model.py#L140">src/minisweagent/models/litellm_model.py:140</a></td>
+<td style="text-align: left;">실행 결과를 Jinja 템플릿(<code>&lt;returncode&gt;</code>, <code>&lt;output&gt;</code>)으로 래핑하여 에이전트 메시지에 추가 <code>[확인]</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>16. Trajectory 저장</strong></td>
+<td style="text-align: left;"><code>save()</code> / <code>serialize()</code></td>
+<td style="text-align: left;"><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L182">src/minisweagent/agents/default.py:182</a><br><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L159">src/minisweagent/agents/default.py:159</a></td>
+<td style="text-align: left;">루프의 <code>finally</code> 절에서 매 스텝마다 JSON 형식 파일로 증분 저장 <code>[확인]</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-state-lifecycle">3. 단계별 데이터 및 상태 변화 (State Lifecycle)</h2>
+<p>에이전트 인스턴스 <code>DefaultAgent</code>는 다음과 같은 핵심 상태 필드를 보유하며, 각 단계마다 갱신됩니다:</p>
+<ul>
+<li><code>self.messages: list[dict]</code>: LLM 대화 히스토리</li>
+<li><code>self.cost: float</code>: 누적 사용 비용 ($)</li>
+<li><code>self.n_calls: int</code>: LLM API 호출 횟수</li>
+<li><code>self.n_consecutive_format_errors: int</code>: 연속 형식 오류 횟수</li>
+<li><code>self._start_time: float</code>: 에이전트 시작 시각 (Wall-clock 측정용)</li>
+</ul>
+<h3 id="31">3.1 상태 전이 표</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">단계</th>
+<th style="text-align: left;"><code>self.messages</code> 상태</th>
+<th style="text-align: left;"><code>self.cost</code> / <code>n_calls</code></th>
+<th style="text-align: left;">에이전트 내부 상태 / 파일 상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>초기화 직후</strong></td>
+<td style="text-align: left;"><code>[]</code> (빈 리스트)</td>
+<td style="text-align: left;"><code>cost=0.0</code>, <code>n_calls=0</code></td>
+<td style="text-align: left;"><code>AgentConfig</code>, <code>Model</code>, <code>Environment</code> 주입 완료</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>run()</code> 시작 시</strong></td>
+<td style="text-align: left;"><code>[SystemMessage, UserMessage]</code><br>(시스템 프롬프트 + 인스턴스 지시문)</td>
+<td style="text-align: left;"><code>cost=0.0</code>, <code>n_calls=0</code></td>
+<td style="text-align: left;">Jinja2 템플릿 변수 렌더링 완료</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>query()</code> 성공 후</strong></td>
+<td style="text-align: left;"><code>[..., AssistantMessage]</code><br>(생각 + 툴 호출/bash 액션 포함)</td>
+<td style="text-align: left;"><code>cost += api_cost</code><br><code>n_calls += 1</code></td>
+<td style="text-align: left;"><code>message["extra"]["actions"]</code>에 실행할 명령어 저장</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>execute_actions()</code> 후</strong></td>
+<td style="text-align: left;"><code>[..., AssistantMessage, ToolMessage/UserMessage]</code><br>(실행 returncode 및 stdout 관측값)</td>
+<td style="text-align: left;">변화 없음</td>
+<td style="text-align: left;"><code>n_consecutive_format_errors = 0</code> 리셋</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>완료 시그널 발생 시</strong></td>
+<td style="text-align: left;"><code>[..., ExitMessage]</code><br>(<code>role: "exit"</code>, <code>exit_status: "Submitted"</code>)</td>
+<td style="text-align: left;">최종 비용 유지</td>
+<td style="text-align: left;"><code>Submitted</code> 예외를 잡아 <code>messages</code>에 exit 메시지 추가</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>매 스텝 종료(<code>finally</code>)</strong></td>
+<td style="text-align: left;">파일에 직렬화되어 반영</td>
+<td style="text-align: left;">최신 통계 반영</td>
+<td style="text-align: left;"><code>output_path</code> 파일에 JSON 덤프 동기화</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-trajectory-serialize">3.2 Trajectory 데이터 구조 (<code>serialize()</code>)</h3>
+<p><a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L159-L180">src/minisweagent/agents/default.py:159-180</a>에 정의된 직렬화 데이터는 다음과 같은 JSON 규격을 갖춥니다:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"model_stats"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"instance_cost"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"api_calls"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"agent"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"agent_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"minisweagent.agents.default.DefaultAgent"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"model_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"minisweagent.models.litellm_model.LitellmModel"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"environment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"environment_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"minisweagent.environments.local.LocalEnvironment"</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"mini_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.4.6"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"exit_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Submitted"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"trajectory_format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mini-swe-agent-1.1"</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr>
+<h2 id="4">4. 예외 발생 시 에러 처리 및 복구 경로</h2>
+<p>mini-swe-agent는 제어 흐름 전환과 에러 처리를 위해 커스텀 예외 계층 구조를 사용합니다 (<a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/exceptions.py#L1-L27">src/minisweagent/exceptions.py:1-27</a>).</p>
+<div class="highlight"><pre><span></span><code>Exception
+ └── InterruptAgentFlow (self.messages: tuple)
+      ├── Submitted                (정상 작업 완료)
+      ├── LimitsExceeded           (비용/스텝 한도 초과)
+      │    └── TimeExceeded        (실행 시간 한도 초과)
+      ├── UserInterruption         (사용자 인터럽트)
+      └── FormatError              (LLM 출력 포맷 오류)
+</code></pre></div>
+<h3 id="41">4.1 세부 예외 처리 메커니즘</h3>
+<ol>
+<li><strong>정상 완료 (<code>Submitted</code>)</strong></li>
+<li><strong>발생 위치</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/environments/local.py#L48-L56">src/minisweagent/environments/local.py:48-56</a></li>
+<li><strong>처리 경로</strong>: <code>run()</code> 루프의 <code>except InterruptAgentFlow as e:</code> (<a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L115">default.py:115</a>)에서 잡아 <code>self.add_messages(*e.messages)</code>를 실행.</li>
+<li>
+<p>마지막 메시지의 <code>role</code>이 <code>"exit"</code>이므로 루프 탈출 조건(<a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L122">default.py:122</a>)을 만족하여 정상 종료.</p>
+</li>
+<li>
+<p><strong>비용 및 스텝 제한 초과 (<code>LimitsExceeded</code>)</strong></p>
+</li>
+<li><strong>발생 위치</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L133">src/minisweagent/agents/default.py:133</a></li>
+<li><strong>기본 에이전트 (<code>DefaultAgent</code>)</strong>: <code>InterruptAgentFlow</code>로 캐치되어 exit 메시지(<code>exit_status: "LimitsExceeded"</code>)가 추가되고 루프 종료.</li>
+<li>
+<p><strong>대화형 에이전트 (<code>InteractiveAgent</code>)</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/interactive.py#L80-L94">src/minisweagent/agents/interactive.py:80-94</a>에서 가로채 대화형 터미널인 경우 사용자에게 추가 스텝/비용 한도를 입력받아 에이전트 동작을 연장. 비대화형 환경인 경우 그대로 종료.</p>
+</li>
+<li>
+<p><strong>시간 초과 (<code>TimeExceeded</code>)</strong></p>
+</li>
+<li><strong>발생 위치</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L141">src/minisweagent/agents/default.py:141</a></li>
+<li>
+<p>벽시계 시간(<code>wall_time_limit_seconds</code>) 초과 시 발생. exit 메시지(<code>exit_status: "TimeExceeded"</code>) 기록 후 즉시 종료.</p>
+</li>
+<li>
+<p><strong>출력 구문 오류 (<code>FormatError</code>)</strong></p>
+</li>
+<li><strong>발생 위치</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/models/litellm_model.py#L90">src/minisweagent/models/litellm_model.py:90</a></li>
+<li>
+<p><strong>처리 경로</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L100-L114">src/minisweagent/agents/default.py:100-114</a></p>
+<ul>
+<li><code>self.cost += e.messages[0]["extra"]["cost"]</code> (파싱 실패 전에 소비된 API 비용 누적 정산)</li>
+<li><code>n_consecutive_format_errors += 1</code></li>
+<li>만약 오류 횟수가 <code>max_consecutive_format_errors</code> 미만이면: 에러 피드백 메시지를 <code>messages</code>에 추가하여 LLM이 자가 수정(Self-correction)할 수 있도록 기회 부여.</li>
+<li>한도를 초과하면: <code>role: "exit"</code>, <code>exit_status: "RepeatedFormatError"</code> 메시지를 주입하고 루프 종료.</li>
+</ul>
+</li>
+<li>
+<p><strong>예기치 못한 런타임 예외 (<code>Exception</code>)</strong></p>
+</li>
+<li><strong>발생 위치</strong>: 네트워크 오류, 파이썬 내부 크래시 등</li>
+<li><strong>처리 경로</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/agents/default.py#L117-L119">src/minisweagent/agents/default.py:117-119</a><ul>
+<li><code>handle_uncaught_exception(e)</code>를 호출하여 traceback과 에러 내용을 담은 <code>role: "exit"</code> 메시지 기록.</li>
+<li><code>finally: self.save(...)</code>를 통해 충돌 직전까지의 대화 및 오류 내역을 디스크에 안전하게 보존.</li>
+<li>이후 <code>raise</code>로 예외를 다시 던져 사용자에게 명확히 보고.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="5-mermaid">5. 엔드투엔드 시퀀스 다이어그램 (Mermaid)</h2>
+<pre class="mermaid"><code>sequenceDiagram
+    autonumber
+    actor User as 사용자 (CLI)
+    participant Run as run.mini / run.hello_world
+    participant Agent as DefaultAgent / InteractiveAgent
+    participant Model as LitellmModel
+    participant Env as LocalEnvironment
+    participant Disk as Trajectory 파일 (Disk)
+
+    User-&gt;&gt;Run: mini -t "태스크" -m gpt-4o
+    Run-&gt;&gt;Run: CLI 파싱 및 recursive_merge()
+    Run-&gt;&gt;Model: get_model(config)
+    Run-&gt;&gt;Env: get_environment(config)
+    Run-&gt;&gt;Agent: get_agent(model, env, config)
+    Run-&gt;&gt;Agent: agent.run(task)
+
+    rect rgb(240, 248, 255)
+    note over Agent: 1. 초기화 단계
+    Agent-&gt;&gt;Agent: _render_template(system &amp; instance)
+    Agent-&gt;&gt;Agent: add_messages(system, user)
+    end
+
+    rect rgb(255, 250, 240)
+    note over Agent, Env: 2. 에이전트 실행 루프 (while True)
+    loop step() 루프
+        Agent-&gt;&gt;Agent: query(): 한도 검사 (cost, steps, time)
+        Agent-&gt;&gt;Model: query(messages)
+        Model-&gt;&gt;Model: completion() 호출 &amp; 비용 계산
+        Model-&gt;&gt;Model: _parse_actions() (FormatError 검사)
+        Model--&gt;&gt;Agent: Assistant Message (thought + action)
+        Agent-&gt;&gt;Agent: add_messages(assistant)
+
+        Agent-&gt;&gt;Agent: execute_actions(message)
+        Agent-&gt;&gt;Env: execute(action)
+        Env-&gt;&gt;Env: _run() (subprocess 서브셸 실행)
+        Env-&gt;&gt;Env: _check_finished(output)
+        alt 완료 시그널 감지 ("COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT")
+            Env--&gt;&gt;Agent: raise Submitted(ExitMessage)
+        else 일반 명령 실행 완료
+            Env--&gt;&gt;Agent: stdout, returncode 딕셔너리
+            Agent-&gt;&gt;Model: format_observation_messages(outputs)
+            Model--&gt;&gt;Agent: Tool/User Observation Message
+            Agent-&gt;&gt;Agent: add_messages(observation)
+        end
+
+        Agent-&gt;&gt;Disk: finally: save(output_path)
+    end
+    end
+
+    alt 정상 종료 (role == "exit")
+        Agent--&gt;&gt;Run: return {"exit_status": "Submitted", "submission": "..."}
+        Run--&gt;&gt;User: "Saved trajectory to ..." 출력
+    end</code></pre>
+<hr>
+<h2 id="6-dynamic-trace-verification">6. 실제 실행 검증 (Dynamic Trace Verification)</h2>
+<p>실제 엔드투엔드 파이프라인의 제어 흐름, 상태 전이, Trajectory 파일 저장 규격을 검증하기 위해 오프라인 결정론적 모델(<a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/models/test_models.py#L13">DeterministicModel</a>)과 로컬 환경(<a href="file:///d:/Coding_Agents/mini-swe-agent/src/minisweagent/environments/local.py#L19">LocalEnvironment</a>)을 연결하여 엔드투엔드 실행을 수행하였습니다.</p>
+<h3 id="61">6.1 검증 실행 내용</h3>
+<ul>
+<li><strong>태스크</strong>: <code>"Solve problem"</code></li>
+<li><strong>스텝 1 액션</strong>: <code>echo Step_1_Executed</code> → 관측값 수집 확인</li>
+<li><strong>스텝 2 액션</strong>: <code>echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT</code> → <code>Submitted</code> 시그널 트리거 확인</li>
+<li><strong>결과 저장 파일</strong>: <a href="file:///d:/Coding_Agents/mini-swe-agent/docs/analysis/test_trace.traj.json">docs/analysis/test_trace.traj.json</a></li>
+</ul>
+<h3 id="62-trajectory-test_tracetrajjson">6.2 생성된 Trajectory 검증 결과 (<code>test_trace.traj.json</code>)</h3>
+<p><a href="file:///d:/Coding_Agents/mini-swe-agent/docs/analysis/test_trace.traj.json#L60-L116">docs/analysis/test_trace.traj.json:60-116</a>에서 추출된 메시지 체인:
+</p><div class="highlight"><pre><span></span><code><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"You are a helpful assistant..."</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Please solve this issue: Solve problem..."</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assistant"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Step 1 thought"</span><span class="p">,</span><span class="w"> </span><span class="nt">"extra"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"actions"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"echo Step_1_Executed"</span><span class="p">}],</span><span class="w"> </span><span class="nt">"cost"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;returncode&gt;0&lt;/returncode&gt;\n&lt;output&gt;\nStep_1_Executed\n&lt;/output&gt;"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assistant"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Step 2 thought"</span><span class="p">,</span><span class="w"> </span><span class="nt">"extra"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"actions"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT\necho Task_Finished_Successfully"</span><span class="p">}],</span><span class="w"> </span><span class="nt">"cost"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exit"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"extra"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"exit_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Submitted"</span><span class="p">,</span><span class="w"> </span><span class="nt">"submission"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div><p></p>
+<ul>
+<li><strong>통계 일치 확인</strong>: <code>info.model_stats.api_calls: 2</code>, <code>info.model_stats.instance_cost: 2.0</code> <code>[확인]</code></li>
+<li><strong>상태 변화 일치 확인</strong>: <code>system</code> → <code>user</code> → <code>assistant</code> → <code>user(observation)</code> → <code>assistant</code> → <code>exit</code> 순으로 전이됨 <code>[확인]</code></li>
+<li><strong>소스 코드 보존 확인</strong>: 검증 과정에서 저장소 내부의 프로덕션 소스 코드는 일절 수정되지 않았음을 확인 <code>[확인]</code></li>
+</ul>
+<hr>
+<h2 id="7">7. 결론</h2>
+<p>mini-swe-agent의 실행 파이프라인은 다음과 같은 핵심적인 아키텍처 특성을 가집니다:
+1. <strong>극도의 단순성과 선형성</strong>: CLI 진입부터 <code>Agent.run()</code> 루프까지 복잡한 프레임워크 계층 없이 직관적인 함수 호출 체인으로 연결되어 있습니다.
+2. <strong>예외 기반의 유연한 제어 흐름</strong>: <code>Submitted</code>, <code>LimitsExceeded</code>, <code>FormatError</code> 등이 모두 <code>InterruptAgentFlow</code> 계층을 통해 통일된 메시지 구조(<code>e.messages</code>)로 주입되므로, <code>run()</code> 루프의 조건문이 매우 간결하게 유지됩니다.
+3. <strong>무손실 증분 보존성</strong>: <code>while True</code> 루프의 <code>finally</code> 절에서 매 스텝마다 디스크에 Trajectory를 기록하므로, 프로세스가 불시에 강제 종료되거나 예외가 발생하더라도 데이터 유실이 원천적으로 차단됩니다.</p>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+
+
+<div class="floating-bubbles">
+<div class="floating-bubbles-title">Our projects</div>
+  <a href="https://swe-agent.com/" class="bubble" title="SWE-agent">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/sweagent_logo.svg" alt="SWE-agent">
+    <span class="bubble-tooltip">SWE-agent</span>
+  </a>
+  <a href="https://swe-rex.com/" class="bubble" title="SWE-rex">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/swerex_logo.svg" alt="SWE-rex">
+    <span class="bubble-tooltip">SWE-ReX</span>
+  </a>
+  <a href="https://swesmith.com" class="bubble" title="SWE-smith">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/swesmith_logo.png" alt="SWE-smith">
+    <span class="bubble-tooltip">SWE-smith</span>
+  </a>
+  <a href="https://swebench.com" class="bubble" title="SWE-bench">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/swebench_logo.png" alt="SWE-bench">
+    <span class="bubble-tooltip">SWE-bench</span>
+  </a>
+  <a href="https://codeclash.ai" class="bubble" title="CodeClash">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/codeclash_logo.svg" alt="CodeClash">
+    <span class="bubble-tooltip">CodeClash</span>
+  </a>
+  <a href="https://www.swebench.com/sb-cli/" class="bubble" title="sb-cli">
+    <img src="https://raw.githubusercontent.com/SWE-agent/swe-agent-media/refs/heads/main/media/logos_banners/sbcli_logo.svg" alt="sb-cli">
+    <span class="bubble-tooltip">sb-cli</span>
+  </a>
+</div>
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden="">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.indexes", "navigation.top", "content.action.edit", "navigation.footer", "content.code.copy", "content.footnote.tooltips", "header.autohide", "announce.dismiss", "content.code.annotate", "navigation.tabs", "navigation.tabs.sticky"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../assets/js/sh-annotation.js"></script>
+      
+        <script src="../../assets/js/gif-controls.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html><!-- Floating Bubbles -->
